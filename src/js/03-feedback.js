@@ -1,47 +1,36 @@
-import throttle from "lodash.throttle";
+import throttle from 'lodash.throttle';
 
+const FORM_KEY = 'feedback-form-state';
 const form = document.querySelector('.feedback-form');
-const KEY_FORM_INPUT = 'feedback-form-state';
 
-
-form.addEventListener('submit', onFormSubmit);
 form.addEventListener('input', throttle(onInputData, 500));
+form.addEventListener('submit', onFormSubmit);
 
-function onInputData() {
-    const { elements: { email, message } } = form;
-    if (email && message) {
-        const dataForm = { email: email.value, message: message.value };
-        localStorage.setItem(KEY_FORM_INPUT, JSON.stringify(dataForm));
-    }
+let dataForm = JSON.parse(localStorage.getItem(FORM_KEY)) || {};
+const { email, message } = form.elements;
+reloadPage();
+
+function onInputData(event) {
+  dataForm = { email: email.value, message: message.value };
+  localStorage.setItem(FORM_KEY, JSON.stringify(dataForm));
 }
 
-function showData() {
-    const dataForm = JSON.parse(localStorage.getItem(KEY_FORM_INPUT));
-    if (dataForm) {
-        const { elements: { email, message } } = form;
-        if (email && message) {
-            email.value = dataForm.email;
-            message.value = dataForm.message;
-        }
-        console.log(dataForm);
-    }
+function reloadPage() {
+  if (dataForm) {
+    email.value = dataForm.email || '';
+    message.value = dataForm.message || '';
+  }
 }
 
-document.addEventListener('DOMContentLoaded', showData);
+function onFormSubmit(event) {
+  event.preventDefault();
+  console.log({ email: email.value, message: message.value });
 
-function onFormSubmit(evt) {
-    evt.preventDefault();
-    const { elements: { email, message } } = form;
-    if (email && message) {
-        const emailTrim = email.value.trim();
-        const messageTrim = message.value.trim();
-        if (emailTrim === "" || messageTrim === "") {
-            alert("Заповніть всі поля");
-            return;
-        }
-        const outputData = { email: emailTrim, message: messageTrim };
-        console.log(outputData);
-        evt.currentTarget.reset();
-        localStorage.removeItem(KEY_FORM_INPUT);
-    }
+  if (email.value === '' || message.value === '') {
+    return alert(`Заповніть всі обов'язкові поля.`);
+  }
+
+  localStorage.removeItem(FORM_KEY);
+  event.currentTarget.reset();
+  dataForm = {};
 }
