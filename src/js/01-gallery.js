@@ -6,27 +6,25 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 
 console.log(galleryItems);
 
-
 const ulList = document.querySelector(".gallery");
+ulList.style.listStyle = 'none'
+const markup = galleryItems
+.map(({ preview, original, description }) => {
+  return `<li class="gallery__item">
+  <a class="gallery__link" href="${original}">
+  <img
+  class="gallery__image"
+  src="${preview}"
+  alt="${description}"
+  />
+  </a>
+  </li>`;
+})
+.join("");
 
-const renderList = (arr, container) => { 
-  const markup = arr.map((item) => `
-    <li class="gallery_item" > 
-      <a class="gallery_link" href="${item.original}">
-        <img
-          class="gallery_image"
-          src="${item.preview}"
-          data-source="${item.original}"
-          alt="${item.description}"
-          width="330px"
-        />
-      </a>
-    </li>`).join("");
-  
-  container.insertAdjacentHTML("afterbegin", markup);
-}
+ ulList.insertAdjacentHTML("beforeend", markup);
 
-const lightbox = new SimpleLightbox('.gallery a', { /* options */
+ const lightbox = new SimpleLightbox('.gallery a', { /* options */
 captionsData: "alt",
 captionDelay: 250,
  });
